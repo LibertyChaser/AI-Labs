@@ -1,0 +1,12 @@
+# macOS system file
+.DS_Store
+
+# ignored file types
+*.pdf
+*.zip
+
+# Python compiled files
+__pycache__
+
+# PyCharm
+.idea
