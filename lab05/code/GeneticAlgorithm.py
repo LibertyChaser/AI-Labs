@@ -33,7 +33,7 @@ def fitness_function(x_1, x_2):
 
 
 class GeneticAlgorithm:
-    def __init__(self, upper=5, lower=-5, population_size=20, precision=4, generation=50):
+    def __init__(self, upper=5, lower=-5, population_size=20, precision=4, generation=40):
         self.UPPER = upper
         self.LOWER = lower
         self.POPULATION = population_size
@@ -127,19 +127,21 @@ class GeneticAlgorithm:
             fitness.append(self.make_evaluation(mutation))
             print("Current generation max evaluation: ", max(fitness[i+1].values()), "\n")
 
-        generation = np.arange(1, 51, 1)
+        generation = np.arange(1, self.GENERATION_SIZE + 1, 1)
         max_eval = [max(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
         mean_eval = [sum(fitness[i].values()) / len(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
         min_eval = [min(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+
         plt.plot(generation, max_eval, 'b', generation, mean_eval, 'r', generation, min_eval, 'g')
         plt.legend(['Max Fitness', 'Mean Fitness', 'Min Fitness'])
         plt.xlabel("Generation Num")
         plt.ylabel("Fitness")
         plt.title("Fitness with Generation")
-        plt.text(37, 0.3, "$y = \\frac{1}{x_1 ^ 2 + x_2 ^ 2 + 1}$", fontsize=15)
+        plt.text(self.GENERATION_SIZE * 0.7, 0.3, "$y = \\frac{1}{x_1 ^ 2 + x_2 ^ 2 + 1}$", fontsize=15)
         plt.grid(True)
         plt.show()
         plt.savefig('fitness_with_generation.svg')
+
         print("Last Generation's fittest child are: ")
         a = max(fitness[self.GENERATION_SIZE], key=fitness[self.GENERATION_SIZE].get)
         print("x_1 = ", round(self.decode_last(a), self.PRECISION), "\nx_2 = ", round(self.decode_first(a), self.PRECISION))
