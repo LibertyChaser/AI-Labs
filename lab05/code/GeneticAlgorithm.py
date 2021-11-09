@@ -7,6 +7,9 @@ Finished on Nov 9, 2021
 import random
 import struct
 from codecs import decode
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy import mean
 
 
 def float_to_bin(value):
@@ -25,7 +28,7 @@ def int_to_bytes(n, length):
     return decode('%%0%dx' % (length << 1) % n, 'hex')[-length:]
 
 
-def evaluate_function(x_1, x_2):
+def fitness_function(x_1, x_2):
     return 1 / (x_1 ** 2 + x_2 ** 2 + 1)
 
 
@@ -52,7 +55,7 @@ class GeneticAlgorithm:
     def make_evaluation(self, code):
         l1 = [bin_to_float(i[0: self.FLOATING_POINT]) for i in code]
         l2 = [bin_to_float(i[self.FLOATING_POINT:]) for i in code]
-        return {code[i]: evaluate_function(l1[i], l2[i]) for i in range(self.POPULATION)}
+        return {code[i]: fitness_function(l1[i], l2[i]) for i in range(self.POPULATION)}
 
     def survival(self, fitness):
         return random.choices(list(fitness.keys()), list(fitness.values()), k=self.POPULATION)
@@ -115,14 +118,28 @@ class GeneticAlgorithm:
         return survivors
 
     def GA(self):
-        evaluation = [self.make_evaluation(self.first_coding)]
+        fitness = [self.make_evaluation(self.first_coding)]
         for i in range(self.GENERATION_SIZE):
-            print(i)
-            survivors = self.survival(evaluation[i])
+            print("The ", i + 1, " Generation:")
+            survivors = self.survival(fitness[i])
             crossover = self.single_point_crossover(survivors)
             mutation = self.single_point_mutation(crossover)
-            evaluation.append(self.make_evaluation(mutation))
-            print(max(evaluation[i+1].values()))
+            fitness.append(self.make_evaluation(mutation))
+            print("Current generation max evaluation: ", max(fitness[i+1].values()), "\n")
 
-        a = max(evaluation[self.GENERATION_SIZE], key=evaluation[self.GENERATION_SIZE].get)
-        print(round(self.decode_last(a), self.PRECISION), round(self.decode_first(a), self.PRECISION))
+        generation = np.arange(1, 51, 1)
+        max_eval = [max(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+        mean_eval = [sum(fitness[i].values()) / len(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+        min_eval = [min(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+        plt.plot(generation, max_eval, 'b', generation, mean_eval, 'r', generation, min_eval, 'g')
+        plt.legend(['Max Fitness', 'Mean Fitness', 'Min Fitness'])
+        plt.xlabel("Generation Num")
+        plt.ylabel("Fitness")
+        plt.title("Fitness with Generation")
+        plt.text(37, 0.3, "$y = \\frac{1}{x_1 ^ 2 + x_2 ^ 2 + 1}$", fontsize=15)
+        plt.grid(True)
+        plt.show()
+        plt.savefig('fitness_with_generation.svg')
+        print("Last Generation's fittest child are: ")
+        a = max(fitness[self.GENERATION_SIZE], key=fitness[self.GENERATION_SIZE].get)
+        print("x_1 = ", round(self.decode_last(a), self.PRECISION), "\nx_2 = ", round(self.decode_first(a), self.PRECISION))
