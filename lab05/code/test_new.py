@@ -33,12 +33,12 @@ class GeneticAlgorithm:
         self.POPULATION = population_size
         self.PRECISION = precision
         self.FLOATING_POINT = 64
-        self.single_point_crossover_num = self.FLOATING_POINT
-        self.single_point_crossover_prob = 0.7
-        self.mutation_prob = 0.1
-        self.population_1 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, precision) for _ in
+        self.SINGLE_POINT_CROSSOVER_NUM = self.FLOATING_POINT
+        self.SINGLE_POINT_CROSSOVER_PROB = 0.7
+        self.SINGLE_MUTATION_PROB = 0.9
+        self.population_1 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, self.PRECISION) for _ in
                              range(self.POPULATION)]
-        self.population_2 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, precision) for _ in
+        self.population_2 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, self.PRECISION) for _ in
                              range(self.POPULATION)]
         self.first_coding = self.coding(self.population_1, self.population_2)
 
@@ -53,35 +53,79 @@ class GeneticAlgorithm:
     def survival(self, fitness):
         return random.choices(list(fitness.keys()), list(fitness.values()), k=self.POPULATION)
 
+    def decode_first(self, code):
+        return bin_to_float(code[0:self.FLOATING_POINT])
+
+    def decode_last(self, code):
+        return bin_to_float(code[self.FLOATING_POINT:])
+
+    def check_in_range(self, input_element):
+        if self.LOWER <= input_element <= self.UPPER:
+            return 1
+        return 0
+
+    def checkout(self, code):
+        if self.check_in_range(self.decode_first(code)) and self.check_in_range(self.decode_last(code)):
+            return 1
+        return 0
+
     def single_point_crossover(self, input_survivors):
         survivors = input_survivors
-        for _ in range(self.single_point_crossover_num):
+        for _ in range(self.SINGLE_POINT_CROSSOVER_NUM):
             i = int(random.random() * self.POPULATION - 1)
-            if random.random() < self.single_point_crossover_prob:
+            if random.random() < self.SINGLE_POINT_CROSSOVER_PROB:
                 change_bit = int(random.random() * (self.FLOATING_POINT * 2) - 1)
-                temp = survivors[i][change_bit]
                 if change_bit == 0:
-                    survivors[i] = survivors[i+1][change_bit] + survivors[i][1:]
-                    survivors[i+1] = temp + survivors[i+1][1:]
+                    temp1 = survivors[i + 1][change_bit] + survivors[i][1:]
+                    temp2 = survivors[i][change_bit] + survivors[i + 1][1:]
                 elif change_bit == self.FLOATING_POINT * 2 - 1:
-                    survivors[i] = survivors[i][0:change_bit] + survivors[i+1][change_bit]
-                    survivors[i+1] = survivors[i+1][0:change_bit] + temp
+                    temp1 = survivors[i][0:change_bit] + survivors[i + 1][change_bit]
+                    temp2 = survivors[i + 1][0:change_bit] + survivors[i][change_bit]
                 else:
-                    survivors[i] = survivors[i][0:change_bit] + survivors[i + 1][change_bit] + survivors[i][change_bit+1:]
-                    survivors[i+1] = survivors[i+1][0:change_bit] + temp + survivors[i+1][change_bit+1:]
+                    temp1 = survivors[i][0:change_bit] + survivors[i + 1][change_bit] + survivors[i][change_bit + 1:]
+                    temp2 = survivors[i + 1][0:change_bit] + survivors[i][change_bit] + survivors[i + 1][change_bit + 1:]
+                if self.checkout(temp1) and self.checkout(temp2):
+                    survivors[i] = temp1
+                    survivors[i + 1] = temp2
+                else:
+                    _ -= 1
         return survivors
 
     def single_point_mutation(self, input_survivors):
         survivors = input_survivors
-        
+        for i in range(self.POPULATION):
+            if random.random() < self.SINGLE_MUTATION_PROB:
+                change_bit = int(random.random() * (self.FLOATING_POINT * 2) - 1)
+                l = ['1', '0']
+                temp_bit = l[int(survivors[i][change_bit])]
+                if change_bit == 0:
+                    temp = temp_bit + survivors[i][1:]
+                elif change_bit == self.FLOATING_POINT * 2 - 1:
+                    temp = survivors[i][0:change_bit] + temp_bit
+                else:
+                    temp = survivors[i][0:change_bit] + temp_bit + survivors[i][change_bit + 1:]
+                if self.checkout(temp):
+                    survivors[i] = temp
+                else:
+                    i -= 1
         return survivors
 
     def test_gen(self):
         first_evaluate = self.decoding_and_evaluate(self.first_coding)
+
         first_survivors = self.survival(first_evaluate)
         print(first_survivors)
-        print(self.single_point_crossover(first_survivors))
+        print(self.decode_first(first_survivors[2]), self.decode_last(first_survivors[2]))
+        print('----')
+        crossover = self.single_point_crossover(first_survivors)
+        print(crossover)
+        print(self.decode_first(crossover[2]), self.decode_last(crossover[2]))
+        print('----')
+        mutation = self.single_point_mutation(crossover)
+        print(mutation)
+        print(self.decode_first(mutation[2]), self.decode_last(mutation[2]))
         pass
+
 
 a = GeneticAlgorithm()
 GeneticAlgorithm.test_gen(a)
