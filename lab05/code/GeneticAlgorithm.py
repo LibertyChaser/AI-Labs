@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-
+Created on Nov 8 2021
+Finished on Nov 9, 2021
+@author: Songqing Zhao, Minzu University of China
 """
-
 import random
 import struct
 from codecs import decode
