@@ -4,6 +4,8 @@
 # ignored file types
 *.pdf
 *.zip
+*.png
+*.svg
 
 # Python compiled files
 __pycache__
