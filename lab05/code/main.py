@@ -1,10 +1,8 @@
 import random
+from GeneticAlgorithm import *
+
 
 if __name__ == '__main__':
-    for i in range(3):
-        print(i)
-        while 1:
-            if random.random() <= 0.4:
-                break
-            print(22)
+    a = GeneticAlgorithm()
+    GeneticAlgorithm.GA(a)
     pass

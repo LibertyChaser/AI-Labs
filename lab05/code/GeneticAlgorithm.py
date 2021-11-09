@@ -1,10 +1,11 @@
+"""
+
+"""
+
 import random
 import struct
 from codecs import decode
 
-
-# https://stackoverflow.com/questions/8751653/how-to-convert-a-binary-string-into-a-float-value/8762541
-# https://docs.python.org/3/library/random.html
 
 def float_to_bin(value):
     """ Convert float to 64-bit binary string. """
@@ -27,7 +28,7 @@ def evaluate_function(x_1, x_2):
 
 
 class GeneticAlgorithm:
-    def __init__(self, upper=5, lower=-5, population_size=20, precision=4):
+    def __init__(self, upper=5, lower=-5, population_size=20, precision=4, generation=50):
         self.UPPER = upper
         self.LOWER = lower
         self.POPULATION = population_size
@@ -35,7 +36,8 @@ class GeneticAlgorithm:
         self.FLOATING_POINT = 64
         self.SINGLE_POINT_CROSSOVER_NUM = self.FLOATING_POINT
         self.SINGLE_POINT_CROSSOVER_PROB = 0.7
-        self.SINGLE_MUTATION_PROB = 0.9
+        self.SINGLE_MUTATION_PROB = 0.1
+        self.GENERATION_SIZE = generation
         self.population_1 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, self.PRECISION) for _ in
                              range(self.POPULATION)]
         self.population_2 = [round(random.random() * (self.UPPER - self.LOWER) + self.LOWER, self.PRECISION) for _ in
@@ -45,7 +47,7 @@ class GeneticAlgorithm:
     def coding(self, input_1, input_2):
         return [float_to_bin(input_1[i]) + float_to_bin(input_2[i]) for i in range(self.POPULATION)]
 
-    def decoding_and_evaluate(self, code):
+    def make_evaluation(self, code):
         l1 = [bin_to_float(i[0: self.FLOATING_POINT]) for i in code]
         l2 = [bin_to_float(i[self.FLOATING_POINT:]) for i in code]
         return {code[i]: evaluate_function(l1[i], l2[i]) for i in range(self.POPULATION)}
@@ -110,22 +112,15 @@ class GeneticAlgorithm:
                     i -= 1
         return survivors
 
-    def test_gen(self):
-        first_evaluate = self.decoding_and_evaluate(self.first_coding)
+    def GA(self):
+        evaluation = [self.make_evaluation(self.first_coding)]
+        for i in range(self.GENERATION_SIZE):
+            print(i)
+            survivors = self.survival(evaluation[i])
+            crossover = self.single_point_crossover(survivors)
+            mutation = self.single_point_mutation(crossover)
+            evaluation.append(self.make_evaluation(mutation))
+            print(max(evaluation[i+1].values()))
 
-        first_survivors = self.survival(first_evaluate)
-        print(first_survivors)
-        print(self.decode_first(first_survivors[2]), self.decode_last(first_survivors[2]))
-        print('----')
-        crossover = self.single_point_crossover(first_survivors)
-        print(crossover)
-        print(self.decode_first(crossover[2]), self.decode_last(crossover[2]))
-        print('----')
-        mutation = self.single_point_mutation(crossover)
-        print(mutation)
-        print(self.decode_first(mutation[2]), self.decode_last(mutation[2]))
-        pass
-
-
-a = GeneticAlgorithm()
-GeneticAlgorithm.test_gen(a)
+        a = max(evaluation[self.GENERATION_SIZE], key=evaluation[self.GENERATION_SIZE].get)
+        print(round(self.decode_last(a), self.PRECISION), round(self.decode_first(a), self.PRECISION))
