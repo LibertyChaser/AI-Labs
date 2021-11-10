@@ -6,7 +6,9 @@
 
 Author: Songqing Zhao, Minzu University of China 
 
-Written at 
+Written at Nov 8^th^, 2021
+
+https://github.com/LibertyChaser/AI-Labs
 
 > [Evolutionary algorithm](https://en.wikipedia.org/wiki/Evolutionary_algorithm)
 >
@@ -14,13 +16,9 @@ Written at
 >
 > [random](https://docs.python.org/3/library/random.html#module-random) — Generate pseudo-random numbers
 
-
-
 ---
 
 ## Lab Purpose
-
-
 
 ## Lab Background 
 
@@ -61,6 +59,8 @@ Once the genetic representation and the fitness function are defined, a GA proce
 
 ## Lab Procedure
 
+### Basic Info
+
 ```python
 # -*- coding: utf-8 -*-
 """
@@ -71,8 +71,18 @@ Finished on Nov 9, 2021
 import random
 import struct
 from codecs import decode
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy import mean
+
+```
+
+### Initialization
+
+The population size depends on the nature of the problem, but typically contains several hundreds or thousands of possible solutions. Often, the initial population is generated randomly, allowing the entire range of possible solutions (the [search space](https://en.wikipedia.org/wiki/Feasible_region)). Occasionally, the solutions may be "seeded" in areas where optimal solutions are likely to be found.
 
 
+```python
 def float_to_bin(value):
     """ Convert float to 64-bit binary string. """
     [d] = struct.unpack(">Q", struct.pack(">d", value))
@@ -89,19 +99,12 @@ def int_to_bytes(n, length):
     return decode('%%0%dx' % (length << 1) % n, 'hex')[-length:]
 
 
-def evaluate_function(x_1, x_2):
+def fitness_function(x_1, x_2):
     return 1 / (x_1 ** 2 + x_2 ** 2 + 1)
 
-```
 
-### Initialization
-
-The population size depends on the nature of the problem, but typically contains several hundreds or thousands of possible solutions. Often, the initial population is generated randomly, allowing the entire range of possible solutions (the [search space](https://en.wikipedia.org/wiki/Feasible_region)). Occasionally, the solutions may be "seeded" in areas where optimal solutions are likely to be found.
-
-
-```python
 class GeneticAlgorithm:
-    def __init__(self, upper=5, lower=-5, population_size=20, precision=4, generation=50):
+    def __init__(self, upper=5, lower=-5, population_size=20, precision=4, generation=40):
         self.UPPER = upper
         self.LOWER = lower
         self.POPULATION = population_size
@@ -133,14 +136,11 @@ In some problems, it is hard or even impossible to define the fitness expression
     def make_evaluation(self, code):
         l1 = [bin_to_float(i[0: self.FLOATING_POINT]) for i in code]
         l2 = [bin_to_float(i[self.FLOATING_POINT:]) for i in code]
-        return {code[i]: evaluate_function(l1[i], l2[i]) for i in range(self.POPULATION)}
+        return {code[i]: fitness_function(l1[i], l2[i]) for i in range(self.POPULATION)}
 
     def survival(self, fitness):
         return random.choices(list(fitness.keys()), list(fitness.values()), k=self.POPULATION)
-```
 
-
-```python
     def decode_first(self, code):
         return bin_to_float(code[0:self.FLOATING_POINT])
 
@@ -151,12 +151,6 @@ In some problems, it is hard or even impossible to define the fitness expression
         if self.LOWER <= input_element <= self.UPPER:
             return 1
         return 0
-
-    def checkout(self, code):
-        if self.check_in_range(self.decode_first(code)) and self.check_in_range(self.decode_last(code)):
-            return 1
-        return 0
-      
 ```
 
 ### Genetic operators
@@ -216,6 +210,7 @@ It is worth tuning parameters such as the [mutation](https://en.wikipedia.org/wi
                 else:
                     i -= 1
         return survivors
+
 ```
 
 ### Termination
@@ -230,19 +225,206 @@ This generational process is repeated until a termination condition has been rea
 - Combinations of the above
 
 ```python
-    def GA(self):
-        evaluation = [self.make_evaluation(self.first_coding)]
+  	def GA(self):
+        fitness = [self.make_evaluation(self.first_coding)]
         for i in range(self.GENERATION_SIZE):
-            print(i)
-            survivors = self.survival(evaluation[i])
+            print("The ", i + 1, " Generation:")
+            survivors = self.survival(fitness[i])
             crossover = self.single_point_crossover(survivors)
             mutation = self.single_point_mutation(crossover)
-            evaluation.append(self.make_evaluation(mutation))
-            print(max(evaluation[i+1].values()))
+            fitness.append(self.make_evaluation(mutation))
+            print("Current generation max evaluation: ", max(fitness[i+1].values()), "\n")
 
-        a = max(evaluation[self.GENERATION_SIZE], key=evaluation[self.GENERATION_SIZE].get)
-        print(round(self.decode_last(a), self.PRECISION), round(self.decode_first(a), self.PRECISION))
+        generation = np.arange(1, self.GENERATION_SIZE + 1, 1)
+        max_eval = [max(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+        mean_eval = [sum(fitness[i].values()) / len(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+        min_eval = [min(fitness[i].values()) for i in range(self.GENERATION_SIZE)]
+```
+### DIsplay the result
+```python
+        plt.plot(generation, max_eval, 'b', generation, mean_eval, 'r', generation, min_eval, 'g')
+        plt.legend(['Max Fitness', 'Mean Fitness', 'Min Fitness'])
+        plt.xlabel("Generation Num")
+        plt.ylabel("Fitness")
+        plt.title("Fitness with Generation")
+        plt.text(self.GENERATION_SIZE * 0.7, 0.3, "$y = \\frac{1}{x_1 ^ 2 + x_2 ^ 2 + 1}$", fontsize=15)
+        plt.grid(True)
+        plt.show()
+        plt.savefig('fitness_with_generation.svg')
 
+        print("Last Generation's fittest child are: ")
+        a = max(fitness[self.GENERATION_SIZE], key=fitness[self.GENERATION_SIZE].get)
+        print("x_1 = ", round(self.decode_last(a), self.PRECISION), "\nx_2 = ", round(self.decode_first(a), self.PRECISION))
+        
 ```
 
 ## Lab Result
+
+### Test code
+
+`main.py`
+
+```python
+
+import random
+
+import matplotlib.pyplot as plt
+
+from GeneticAlgorithm import *
+from mpl_toolkits.mplot3d import Axes3D
+
+if __name__ == '__main__':
+    a = GeneticAlgorithm()
+    GeneticAlgorithm.GA(a)
+
+    fig = plt.figure()
+    ax = Axes3D(fig, auto_add_to_figure=False)
+    fig.add_axes(ax)
+    x_1 = np.arange(a.LOWER, a.UPPER, 0.1)
+    x_2 = np.arange(a.LOWER, a.UPPER, 0.1)
+    x_1, x_2 = np.meshgrid(x_1, x_2)
+    ax.plot_surface(x_1, x_2, fitness_function(x_1, x_2), rstride=1, cstride=1)
+    ax.view_init(elev=30, azim=125)
+    plt.show()
+```
+
+### Result Visualization
+
+#### Fitness plot
+
+<img src="AI Lab05 Report.assets/fitness_plot.png" alt="fitness_plot" style="zoom:50%;" />
+
+#### Fitness wiith generation
+
+<img src="AI Lab05 Report.assets/fitness_with_generation.png" alt="fitness_with_generation" style="zoom:50%;" />
+
+### Output
+
+One of the output. Not correspond to the image.
+
+```python
+The  1  Generation:
+Current generation max evaluation:  0.7283851170234454 
+
+The  2  Generation:
+Current generation max evaluation:  0.8865956603312688 
+
+The  3  Generation:
+Current generation max evaluation:  0.8876004856793579 
+
+The  4  Generation:
+Current generation max evaluation:  0.8876004856793579 
+
+The  5  Generation:
+Current generation max evaluation:  0.8876004856793579 
+
+The  6  Generation:
+Current generation max evaluation:  0.88760060811082 
+
+The  7  Generation:
+Current generation max evaluation:  0.8876009754048972 
+
+The  8  Generation:
+Current generation max evaluation:  0.9551341012614456 
+
+The  9  Generation:
+Current generation max evaluation:  0.9551341012614455 
+
+The  10  Generation:
+Current generation max evaluation:  0.9551341012614382 
+
+The  11  Generation:
+Current generation max evaluation:  0.9527615620380182 
+
+The  12  Generation:
+Current generation max evaluation:  0.9527615620380182 
+
+The  13  Generation:
+Current generation max evaluation:  0.9527615620380182 
+
+The  14  Generation:
+Current generation max evaluation:  0.8876148379850519 
+
+The  15  Generation:
+Current generation max evaluation:  0.8876009753524988 
+
+The  16  Generation:
+Current generation max evaluation:  0.9603318890072965 
+
+The  17  Generation:
+Current generation max evaluation:  0.9603319113505475 
+
+The  18  Generation:
+Current generation max evaluation:  0.9603318890066147 
+
+The  19  Generation:
+Current generation max evaluation:  0.9799866795326029 
+
+The  20  Generation:
+Current generation max evaluation:  0.979986679514371 
+
+The  21  Generation:
+Current generation max evaluation:  0.979986679514371 
+
+The  22  Generation:
+Current generation max evaluation:  0.97998667951665 
+
+The  23  Generation:
+Current generation max evaluation:  0.9799866795143708 
+
+The  24  Generation:
+Current generation max evaluation:  0.9805193888546964 
+
+The  25  Generation:
+Current generation max evaluation:  0.9805193888546964 
+
+The  26  Generation:
+Current generation max evaluation:  0.9805193888546964 
+
+The  27  Generation:
+Current generation max evaluation:  0.9799531611365958 
+
+The  28  Generation:
+Current generation max evaluation:  0.9145145150928657 
+
+The  29  Generation:
+Current generation max evaluation:  0.8944717583515865 
+
+The  30  Generation:
+Current generation max evaluation:  0.8944717583515865 
+
+The  31  Generation:
+Current generation max evaluation:  0.8944717583515865 
+
+The  32  Generation:
+Current generation max evaluation:  0.8944874826794799 
+
+The  33  Generation:
+Current generation max evaluation:  0.8944717583515865 
+
+The  34  Generation:
+Current generation max evaluation:  0.8944707059336631 
+
+The  35  Generation:
+Current generation max evaluation:  0.9029437797226654 
+
+The  36  Generation:
+Current generation max evaluation:  0.9029437797226654 
+
+The  37  Generation:
+Current generation max evaluation:  1.0 
+
+The  38  Generation:
+Current generation max evaluation:  1.0 
+
+The  39  Generation:
+Current generation max evaluation:  1.0 
+
+The  40  Generation:
+Current generation max evaluation:  1.0 
+
+Last Generation's fittest child are: 
+x_1 =  0.0 
+x_2 =  -0.0
+```
+
