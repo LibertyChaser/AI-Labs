@@ -24,7 +24,7 @@ https://github.com/LibertyChaser/AI-Labs
 
 ### Evolutionary algorithm
 
-In [computational intelligence](https://en.wikipedia.org/wiki/Computational_intelligence) (CI), an **evolutionary algorithm** (**EA**) is a [subset](https://en.wikipedia.org/wiki/Subset)of [evolutionary computation](https://en.wikipedia.org/wiki/Evolutionary_computation),[[1\]](https://en.wikipedia.org/wiki/Evolutionary_algorithm#cite_note-EVOALG-1) a generic population-based [metaheuristic](https://en.wikipedia.org/wiki/Metaheuristic)[optimization](https://en.wikipedia.org/wiki/Optimization_(mathematics)) [algorithm](https://en.wikipedia.org/wiki/Algorithm). An EA uses mechanisms inspired by [biological evolution](https://en.wikipedia.org/wiki/Biological_evolution), such as [reproduction](https://en.wikipedia.org/wiki/Reproduction), [mutation](https://en.wikipedia.org/wiki/Mutation), [recombination](https://en.wikipedia.org/wiki/Genetic_recombination), and [selection](https://en.wikipedia.org/wiki/Natural_selection). [Candidate solutions](https://en.wikipedia.org/wiki/Candidate_solution) to the [optimization problem](https://en.wikipedia.org/wiki/Optimization_problem) play the role of individuals in a population, and the [fitness function](https://en.wikipedia.org/wiki/Fitness_function) determines the quality of the solutions (see also [loss function](https://en.wikipedia.org/wiki/Loss_function)). [Evolution](https://en.wikipedia.org/wiki/Evolution) of the population then takes place after the repeated application of the above operators.
+In [computational intelligence](https://en.wikipedia.org/wiki/Computational_intelligence) (CI), an **evolutionary algorithm** (**EA**) is a [subset](https://en.wikipedia.org/wiki/Subset) of [evolutionary computation](https://en.wikipedia.org/wiki/Evolutionary_computation),[[1\]](https://en.wikipedia.org/wiki/Evolutionary_algorithm#cite_note-EVOALG-1) a generic population-based [metaheuristic](https://en.wikipedia.org/wiki/Metaheuristic)[optimization](https://en.wikipedia.org/wiki/Optimization_(mathematics)) [algorithm](https://en.wikipedia.org/wiki/Algorithm). An EA uses mechanisms inspired by [biological evolution](https://en.wikipedia.org/wiki/Biological_evolution), such as [reproduction](https://en.wikipedia.org/wiki/Reproduction), [mutation](https://en.wikipedia.org/wiki/Mutation), [recombination](https://en.wikipedia.org/wiki/Genetic_recombination), and [selection](https://en.wikipedia.org/wiki/Natural_selection). [Candidate solutions](https://en.wikipedia.org/wiki/Candidate_solution) to the [optimization problem](https://en.wikipedia.org/wiki/Optimization_problem) play the role of individuals in a population, and the [fitness function](https://en.wikipedia.org/wiki/Fitness_function) determines the quality of the solutions (see also [loss function](https://en.wikipedia.org/wiki/Loss_function)). [Evolution](https://en.wikipedia.org/wiki/Evolution) of the population then takes place after the repeated application of the above operators.
 
 Evolutionary algorithms often perform well approximating solutions to all types of problems because they ideally do not make any assumption about the underlying [fitness landscape](https://en.wikipedia.org/wiki/Fitness_landscape). Techniques from evolutionary algorithms applied to the modeling of biological evolution are generally limited to explorations of [microevolutionary processes](https://en.wikipedia.org/wiki/Microevolution) and planning models based upon cellular processes. In most real applications of EAs, computational complexity is a prohibiting factor.[[2\]](https://en.wikipedia.org/wiki/Evolutionary_algorithm#cite_note-VLSI-2) In fact, this computational complexity is due to fitness function evaluation. [Fitness approximation](https://en.wikipedia.org/wiki/Fitness_approximation) is one of the solutions to overcome this difficulty. However, seemingly simple EA can solve often complex problems;[*[citation needed](https://en.wikipedia.org/wiki/Wikipedia:Citation_needed)*] therefore, there may be no direct link between algorithm complexity and problem complexity.
 
@@ -288,16 +288,6 @@ if __name__ == '__main__':
     plt.show()
 ```
 
-### Result Visualization
-
-#### Fitness plot
-
-<img src="AI Lab05 Report.assets/fitness_plot.png" alt="fitness_plot" style="zoom:50%;" />
-
-#### Fitness wiith generation
-
-<img src="AI Lab05 Report.assets/fitness_with_generation.png" alt="fitness_with_generation" style="zoom:50%;" />
-
 ### Output
 
 One of the output. Not correspond to the image.
@@ -427,4 +417,14 @@ Last Generation's fittest child are:
 x_1 =  0.0 
 x_2 =  -0.0
 ```
+
+### Result Visualization
+
+#### Fitness plot
+
+<img src="AI Lab05 Report.assets/fitness_plot.png" alt="fitness_plot" style="zoom:50%;" />
+
+#### Fitness wiith generation
+
+<img src="AI Lab05 Report.assets/fitness_with_generation.png" alt="fitness_with_generation" style="zoom:50%;" />
 
